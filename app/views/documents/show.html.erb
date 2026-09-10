@@ -1,0 +1,11 @@
+<h1><%= @document.title %></h1>
+
+<div>
+  <% if @document.file.attached? %>
+    <%= link_to "Download File (#{@document.file.filename})", url_for(@document.file) %>
+  <% else %>
+    <p>No file attached.</p>
+  <% end %>
+</div>
+
+<p><%= link_to "Back to Documents", documents_path %></p>
