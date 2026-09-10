@@ -1,5 +1,5 @@
 class DocumentsController < ApplicationController
-  before_action :set_document, only: [:show, :destroy]
+  before_action :set_document, only: [:show, :edit, :update, :destroy]
 
   def index
     @documents = Document.all
@@ -19,6 +19,17 @@ class DocumentsController < ApplicationController
       redirect_to @document, notice: "Document successfully uploaded."
     else
       render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+  end
+
+  def update
+    if @document.update(document_params)
+      redirect_to @document, notice: "Document successfully updated."
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
