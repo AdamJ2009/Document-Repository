@@ -3,6 +3,15 @@
 <div>
   <% if @document.file.attached? %>
     <%= link_to "Download File (#{@document.file.filename})", url_for(@document.file) %>
+    
+    <%# Display file upload timestamp %>
+    <p>
+      <strong>Uploaded:</strong> 
+      <%= @document.file.created_at.strftime("%B %d, %Y at %I:%M %p") %> 
+      (<%= time_ago_in_words(@document.file.created_at) %> ago)
+    </p>
+
+    <%= button_to "Delete", @document, method: :delete, data: { turbo_confirm: "Are you sure?" } %>
   <% else %>
     <p>No file attached.</p>
   <% end %>
