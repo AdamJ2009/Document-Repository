@@ -13,10 +13,23 @@
     <% if authenticated? %>
       <%= link_to "Edit", edit_document_path(@document) %>
       <%= button_to "Delete", @document, method: :delete, data: { turbo_confirm: "Are you sure?" } %>
+      <h3>Revision History</h3>
+        <% @document.document_versions.order(created_at: :desc).each do |version| %>
+          <div class="version-entry" style="border-bottom: 1px solid #ddd; padding: 10px 0;">
+            <p><strong>Changed on:</strong> <%= version.created_at.to_fs(:short) %></p>
+            
+            <% if version.diff.present? %>
+              <pre class="diff-block" style="background: #f5f5f5; padding: 10px; overflow-x: auto;"><code><%= version.diff %></code></pre>
+            <% else %>
+              <p><em>No text file changes detected (metadata or non-text attachment update).</em></p>
+            <% end %>
+          </div>
+        <% end %>
     <% end %>
   <% else %>
     <p>No file attached.</p>
   <% end %>
 </div>
+
 
 <p><%= link_to "Back to Documents", documents_path %></p>
