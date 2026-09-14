@@ -1,7 +1,7 @@
 class DocumentsController < ApplicationController
-  before_action :set_document, only: [:show, :edit, :update, :destroy]
+  before_action :set_document, only: [ :show, :edit, :update, :destroy ]
   before_action :resume_session, only: %i[ index show ]
-  before_action :authorize_document_access!, only: [:show]
+  before_action :authorize_document_access!, only: [ :show ]
   allow_unauthenticated_access only: %i[ index show ]
 
   def index
@@ -48,7 +48,7 @@ class DocumentsController < ApplicationController
 
   def authorize_document_access!
     return if Current.user&.admin?
-    
+
     # Use the prefixed enum predicate methods (access_admin_only? / access_logged_in?)
     if @document.access_admin_only? || (@document.access_logged_in? && Current.user.nil?)
       redirect_to documents_path, alert: "You are not authorized to view this document."
@@ -57,7 +57,7 @@ class DocumentsController < ApplicationController
 
   def document_params
     permitted = params.require(:document).permit(:title, :file, :accessibility_level, :importance_flag)
-    
+
     unless Current.user&.admin?
       permitted[:accessibility_level] = "public_access"
     end

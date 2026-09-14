@@ -13,16 +13,16 @@ class Document < ApplicationRecord
   enum :importance_flag, { normal: 0, important: 1 }, prefix: :importance
 
   scope :public_only, -> { where(accessibility_level: :public_access) }
-  scope :for_regular_users, -> { where(accessibility_level: [:public_access, :logged_in]) }
+  scope :for_regular_users, -> { where(accessibility_level: [ :public_access, :logged_in ]) }
 
   def self.for_user(user)
     base_scope = if user&.admin?
                    all
-                 elsif user.present?
+    elsif user.present?
                    for_regular_users
-                 else
+    else
                    public_only
-                 end
+    end
 
     base_scope.order(importance_flag: :desc, created_at: :desc)
   end
@@ -36,18 +36,18 @@ class Document < ApplicationRecord
       attachable = attachment_changes["file"].attachable
 
       file_size = case attachable
-                  when ActionDispatch::Http::UploadedFile, File, Tempfile
+      when ActionDispatch::Http::UploadedFile, File, Tempfile
                     attachable.size
-                  when ActiveStorage::Blob
+      when ActiveStorage::Blob
                     attachable.byte_size
-                  end
+      end
 
       file_type = case attachable
-                  when ActionDispatch::Http::UploadedFile
+      when ActionDispatch::Http::UploadedFile
                     attachable.content_type
-                  when ActiveStorage::Blob
+      when ActiveStorage::Blob
                     attachable.content_type
-                  end
+      end
     else
       file_size = file.blob&.byte_size
       file_type = file.blob&.content_type
@@ -57,7 +57,7 @@ class Document < ApplicationRecord
       errors.add(:file, "is too big (max 10MB)")
     end
 
-    acceptable_types = ["text/plain", "application/rtf", "image/png"]
+    acceptable_types = [ "text/plain", "application/rtf", "image/png" ]
     if file_type && !acceptable_types.include?(file_type)
       errors.add(:file, "must be a .txt, .rtf, or .png")
     end
@@ -81,13 +81,13 @@ class Document < ApplicationRecord
     tracked_changes = {}
     %w[title accessibility_level importance_flag].each do |attr|
       if attribute_changed?(attr)
-        tracked_changes[attr] = [attribute_was(attr), send(attr)]
+        tracked_changes[attr] = [ attribute_was(attr), send(attr) ]
       end
     end
 
     new_uploaded_file = if file_was_changed
                           read_attachable_text(attachment_changes["file"].attachable)
-                        end
+    end
 
     yield # Execute save in database
 

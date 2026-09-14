@@ -1,5 +1,5 @@
 class ArchivesController < ApplicationController
-  before_action :set_archive, only: [:show]
+  before_action :set_archive, only: [ :show ]
   before_action :require_admin!
 
   def index
