@@ -43,6 +43,16 @@
     ] %>
   </div>
 
+    <div class="field">
+    <%= form.label :folder_id, "Select Existing Folder" %>
+    <%= form.collection_select :folder_id, Folder.active, :id, :name, { include_blank: "Root / No Folder" } %>
+  </div>
+
+  <div class="field" style="margin-top: 10px;">
+    <%= form.label :new_folder_name, "Or Create New Folder" %>
+    <%= form.text_field :new_folder_name, placeholder: "e.g. Legal Documents" %>
+  </div>
+
   <div>
     <%= form.submit %>
   </div>

@@ -1,7 +1,32 @@
 Rails.application.routes.draw do
-  resource :session
-  resources :passwords, param: :token
+  resources :passwords
   root "documents#index"
-  resources :documents
-  resources :archives
+
+  # Authentication session route
+  resource :session, only: [:new, :create, :destroy]
+
+  resources :folders, only: [:index, :show, :create, :update] do
+    member do
+      patch :archive
+      patch :restore
+    end
+    collection do
+      get :archived
+    end
+  end
+
+  resources :archives, only: [:index, :show] do
+    member do
+      patch :restore
+    end
+  end
+
+  resources :documents do
+    collection do
+      get :archived
+    end
+    member do
+      patch :restore
+    end
+  end
 end

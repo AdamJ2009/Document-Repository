@@ -1,9 +1,14 @@
 class Document < ApplicationRecord
   MAX_DIFF_SIZE = 10.megabytes
 
+  # Virtual attribute MUST be public (above private)
+  attr_accessor :new_folder_name
+
+  belongs_to :folder, optional: true
   has_one_attached :file
   has_many :document_versions, dependent: :destroy
 
+  before_validation :create_folder_from_name
   validate :acceptable_file
   before_destroy :archive_document
 
@@ -57,9 +62,16 @@ class Document < ApplicationRecord
       errors.add(:file, "is too big (max 10MB)")
     end
 
-    acceptable_types = [ "text/plain", "application/rtf", "image/png" ]
+    acceptable_types = [
+      "text/plain",                  # .txt
+      "application/rtf",             # .rtf
+      "application/pdf",             # .pdf
+      "application/msword",          # .doc
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" # .docx
+    ]
+
     if file_type && !acceptable_types.include?(file_type)
-      errors.add(:file, "must be a .txt, .rtf, or .png")
+      errors.add(:file, "must be a .txt, .rtf, .pdf, .doc, or .docx")
     end
   end
 
@@ -68,36 +80,41 @@ class Document < ApplicationRecord
 
     Archive.create!(
       title: title,
-      file: file.blob
+      file: file.blob,
+      folder: folder
     )
   end
 
   def create_version_diff
-    # 1. Capture state before yield
     old_content = text_content_for_existing_blob
     file_was_changed = attachment_changes.key?("file")
 
-    # Track dirty attribute changes before save
+    # Track dirty attribute changes including folder_id
     tracked_changes = {}
-    %w[title accessibility_level importance_flag].each do |attr|
+    %w[title accessibility_level importance_flag folder_id].each do |attr|
       if attribute_changed?(attr)
-        tracked_changes[attr] = [ attribute_was(attr), send(attr) ]
+        tracked_changes[attr] = [attribute_was(attr), send(attr)]
       end
     end
 
     new_uploaded_file = if file_was_changed
                           read_attachable_text(attachment_changes["file"].attachable)
-    end
+                        end
 
-    yield # Execute save in database
+    yield # Save database changes
 
-    # 2. Compile diff output if attributes or file changed
     if file_was_changed || tracked_changes.any?
       diff_parts = []
 
-      # Format attribute metadata changes
+      # Format attribute and folder move metadata
       tracked_changes.each do |attr, (old_val, new_val)|
-        diff_parts << "Changed #{attr.humanize}: '#{old_val}' → '#{new_val}'"
+        if attr == "folder_id"
+          old_folder = Folder.find_by(id: old_val)&.name || "Root / None"
+          new_folder = Folder.find_by(id: new_val)&.name || "Root / None"
+          diff_parts << "Moved Folder: '#{old_folder}' → '#{new_folder}'"
+        else
+          diff_parts << "Changed #{attr.humanize}: '#{old_val}' → '#{new_val}'"
+        end
       end
 
       # Format file content diff
@@ -148,5 +165,12 @@ class Document < ApplicationRecord
 
   def readable_text?(blob)
     blob.byte_size <= MAX_DIFF_SIZE && (blob.content_type.start_with?("text/") || blob.content_type == "application/json")
+  end
+
+  def create_folder_from_name
+    return if new_folder_name.blank?
+
+    folder_record = Folder.active.find_or_create_by!(name: new_folder_name.strip)
+    self.folder = folder_record
   end
 end

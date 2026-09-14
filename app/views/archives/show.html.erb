@@ -5,7 +5,6 @@
     <% if @archive.file.attached? %>
       <%= link_to "Download File (#{@archive.file.filename})", url_for(@archive.file) %>
       
-      <%# Display file upload timestamp %>
       <p>
         <strong>Uploaded:</strong> 
         <%= @archive.file.created_at.strftime("%B %d, %Y at %I:%M %p") %> 
@@ -16,7 +15,11 @@
     <% end %>
   </div>
 
-  <p><%= link_to "Back to Archive", archives_path %></p>
+  <div style="margin-top: 15px;">
+    <%= button_to "Restore to Active Documents", restore_archive_path(@archive), method: :patch %>
+  </div>
+
+  <p style="margin-top: 15px;"><%= link_to "Back to Archive", archives_path %></p>
 <% else %>
   <p style="color: red;">Access Denied: You must be an admin to view this archive.</p>
   <p><%= link_to "Return to Home", root_path %></p>

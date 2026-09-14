@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_14_115455) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_14_144835) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -41,8 +41,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_115455) do
 
   create_table "archives", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "folder_id"
     t.string "title"
     t.datetime "updated_at", null: false
+    t.index ["folder_id"], name: "index_archives_on_folder_id"
   end
 
   create_table "document_versions", force: :cascade do |t|
@@ -59,8 +61,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_115455) do
   create_table "documents", force: :cascade do |t|
     t.integer "accessibility_level"
     t.datetime "created_at", null: false
+    t.integer "folder_id"
     t.integer "importance_flag"
     t.string "title"
+    t.datetime "updated_at", null: false
+    t.index ["folder_id"], name: "index_documents_on_folder_id"
+  end
+
+  create_table "folders", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.integer "status"
     t.datetime "updated_at", null: false
   end
 
@@ -84,7 +95,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_115455) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "archives", "folders"
   add_foreign_key "document_versions", "documents"
   add_foreign_key "document_versions", "users"
+  add_foreign_key "documents", "folders"
   add_foreign_key "sessions", "users"
 end

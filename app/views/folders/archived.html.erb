@@ -1,0 +1,15 @@
+<h1>Archived Folders</h1>
+<%= link_to "← Back to Active Folders", folders_path %>
+
+<% if @folders.any? %>
+  <ul>
+    <% @folders.each do |folder| %>
+      <li style="margin-top: 10px;">
+        <strong><%= folder.name %></strong>
+        <%= button_to "Restore Folder", restore_folder_path(folder), method: :patch, style: "display: inline-block; margin-left: 10px;" %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No archived folders found.</p>
+<% end %>

@@ -1,0 +1,13 @@
+<h1>Folder: <%= @folder.name %></h1>
+<%= link_to "← Back to Folders", folders_path %>
+
+<h3>Documents in this folder</h3>
+<% if @documents.any? %>
+  <ul>
+    <% @documents.each do |doc| %>
+      <li><%= link_to doc.title, document_path(doc) %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No documents in this folder yet.</p>
+<% end %>

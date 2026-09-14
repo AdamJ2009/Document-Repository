@@ -1,0 +1,16 @@
+<h1>Archived Documents</h1>
+<%= link_to "← Back to Active Documents", documents_path %>
+
+<% if @archived_documents.any? %>
+  <ul>
+    <% @archived_documents.each do |archive| %>
+      <li style="margin-top: 10px;">
+        <strong><%= archive.title %></strong> 
+        (Archived on: <%= archive.created_at.to_fs(:short) %>)
+        <%= button_to "Restore Document", restore_document_path(archive), method: :patch, style: "display: inline-block; margin-left: 10px;" %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No archived documents found.</p>
+<% end %>

@@ -1,12 +1,20 @@
 <% if Current.user&.admin? %>
-  <h1>Archives</h1>
-  <ul>
-    <% @archives.each do |archive| %>
-      <li>
-        <%= link_to archive.title, archive_path(archive) %>
-      </li>
-    <% end %>
-  </ul>
+  <h1>Document Archives</h1>
+  <%= link_to "← Back to Documents", documents_path %>
+
+  <% if @archives.any? %>
+    <ul>
+      <% @archives.each do |archive| %>
+        <li style="margin-top: 10px;">
+          <%= link_to archive.title, archive_path(archive) %>
+          
+          <%= button_to "Restore Document", restore_archive_path(archive), method: :patch, style: "display: inline-block; margin-left: 10px;" %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No archived documents found.</p>
+  <% end %>
 <% else %>
   <p style="color: red;">Access Denied: You must be an admin to view this archive.</p>
   <p><%= link_to "Return to Home", root_path %></p>

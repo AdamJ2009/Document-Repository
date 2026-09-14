@@ -24,6 +24,12 @@ class ArchivesController < ApplicationController
     end
   end
 
+  def restore
+    @archive = Archive.find(params[:id])
+    @archive.restore!
+    redirect_to archives_path, notice: "Document restored to active library."
+  end
+
   private
 
   def set_archive

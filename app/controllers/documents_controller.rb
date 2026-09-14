@@ -40,6 +40,17 @@ class DocumentsController < ApplicationController
     redirect_to documents_path, notice: "Document deleted."
   end
 
+  def archived
+    @archived_documents = Archive.order(created_at: :desc)
+  end
+
+  # PATCH /documents/:id/restore
+  def restore
+    archive_record = Archive.find(params[:id])
+    archive_record.restore!
+    redirect_to archived_documents_path, notice: "Document restored to active library."
+  end
+
   private
 
   def set_document
@@ -56,8 +67,8 @@ class DocumentsController < ApplicationController
   end
 
   def document_params
-    permitted = params.require(:document).permit(:title, :file, :accessibility_level, :importance_flag)
-
+    permitted = params.require(:document).permit(:title, :file, :accessibility_level, :importance_flag, :folder_id, :new_folder_name)
+    
     unless Current.user&.admin?
       permitted[:accessibility_level] = "public_access"
     end
