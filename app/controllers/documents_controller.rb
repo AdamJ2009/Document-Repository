@@ -1,8 +1,10 @@
 class DocumentsController < ApplicationController
   before_action :set_document, only: [:show, :edit, :update, :destroy]
+  allow_unauthenticated_access only: %i[ index show ]
 
   def index
     @documents = Document.all
+    @archive = Archive.all
   end
 
   def show
@@ -35,7 +37,7 @@ class DocumentsController < ApplicationController
 
   def destroy
     @document.destroy
-    redirect_to documents_path, notice: "Document deleted."
+    redirect_to documents_path, notice: "Non archived part deleted."
   end
 
   private
@@ -47,4 +49,5 @@ class DocumentsController < ApplicationController
   def document_params
     params.require(:document).permit(:title, :file)
   end
+
 end

@@ -3,6 +3,8 @@ class Document < ApplicationRecord
 
   validate :acceptable_file
 
+  before_destroy :archive_document
+
   private
 
   def acceptable_file
@@ -18,5 +20,12 @@ class Document < ApplicationRecord
     unless acceptable_types.include?(file.content_type)
       errors.add(:file, "must be a .txt, .rtf, or .png")
     end
+  end
+
+  def archive_document
+    Archive.create!(
+      title: title,
+      file: file.blob
+    )
   end
 end

@@ -1,6 +1,7 @@
 <h1>Documents</h1>
 
-<%= link_to "Upload New Document", new_document_path %>
+<%= link_to "New document", new_document_path if authenticated? %>
+<%= link_to "Login", new_session_path unless authenticated? %>
 
 <ul>
   <% @documents.each do |document| %>

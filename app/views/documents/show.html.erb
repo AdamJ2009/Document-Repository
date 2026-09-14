@@ -10,8 +10,10 @@
       <%= @document.file.created_at.strftime("%B %d, %Y at %I:%M %p") %> 
       (<%= time_ago_in_words(@document.file.created_at) %> ago)
     </p>
-    <%= link_to "Edit", edit_document_path(@document) %>
-    <%= button_to "Delete", @document, method: :delete, data: { turbo_confirm: "Are you sure?" } %>
+    <% if authenticated? %>
+      <%= link_to "Edit", edit_document_path(@document) %>
+      <%= button_to "Delete", @document, method: :delete, data: { turbo_confirm: "Are you sure?" } %>
+    <% end %>
   <% else %>
     <p>No file attached.</p>
   <% end %>
