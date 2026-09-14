@@ -1,8 +1,13 @@
-<h1>Archives</h1>
-<ul>
-  <% @archives.each do |archive| %>
-    <li>
-      <%= link_to archive.title, archive_path(archive) %>
-    </li>
-  <% end %>
-</ul>
+<% if Current.user&.admin? %>
+  <h1>Archives</h1>
+  <ul>
+    <% @archives.each do |archive| %>
+      <li>
+        <%= link_to archive.title, archive_path(archive) %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p style="color: red;">Access Denied: You must be an admin to view this archive.</p>
+  <p><%= link_to "Return to Home", root_path %></p>
+<% end %>

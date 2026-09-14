@@ -1,10 +1,11 @@
 class DocumentsController < ApplicationController
   before_action :set_document, only: [:show, :edit, :update, :destroy]
+  before_action :resume_session, only: %i[ index show ]
+  before_action :authorize_document_access!, only: [:show]
   allow_unauthenticated_access only: %i[ index show ]
 
   def index
-    @documents = Document.all
-    @archive = Archive.all
+    @documents = Document.for_user(Current.user)
   end
 
   def show
@@ -16,9 +17,8 @@ class DocumentsController < ApplicationController
 
   def create
     @document = Document.new(document_params)
-
     if @document.save
-      redirect_to @document, notice: "Document successfully uploaded."
+      redirect_to @document, notice: "Document created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class DocumentsController < ApplicationController
 
   def update
     if @document.update(document_params)
-      redirect_to @document, notice: "Document successfully updated."
+      redirect_to @document, notice: "Document updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -37,7 +37,7 @@ class DocumentsController < ApplicationController
 
   def destroy
     @document.destroy
-    redirect_to documents_path, notice: "Non archived part deleted."
+    redirect_to documents_path, notice: "Document deleted."
   end
 
   private
@@ -46,8 +46,22 @@ class DocumentsController < ApplicationController
     @document = Document.find(params[:id])
   end
 
-  def document_params
-    params.require(:document).permit(:title, :file)
+  def authorize_document_access!
+    return if Current.user&.admin?
+    
+    # Use the prefixed enum predicate methods (access_admin_only? / access_logged_in?)
+    if @document.access_admin_only? || (@document.access_logged_in? && Current.user.nil?)
+      redirect_to documents_path, alert: "You are not authorized to view this document."
+    end
   end
 
+  def document_params
+    permitted = params.require(:document).permit(:title, :file, :accessibility_level, :importance_flag)
+    
+    unless Current.user&.admin?
+      permitted[:accessibility_level] = "public_access"
+    end
+
+    permitted
+  end
 end

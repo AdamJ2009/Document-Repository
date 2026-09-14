@@ -7,6 +7,16 @@
   <% @documents.each do |document| %>
     <li>
       <%= link_to document.title, document_path(document) %>
+
+      <%# Display Important badge %>
+      <% if document.importance_important? %>
+        <span style="color: gold; font-weight: bold;">[★ Important]</span>
+      <% end %>
+
+      <%# Display Admin Only tag %>
+      <% if document.access_admin_only? %>
+        <span style="color: red;">(Admin Only)</span>
+      <% end %>
     </li>
   <% end %>
 </ul>

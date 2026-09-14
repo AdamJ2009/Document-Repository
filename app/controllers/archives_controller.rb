@@ -1,11 +1,13 @@
 class ArchivesController < ApplicationController
   before_action :set_archive, only: [:show]
+  before_action :require_admin!
 
   def index
     @archives = Archive.all
   end
 
   def show
+    @archive = Archive.find(params[:id])
   end
 
   def new

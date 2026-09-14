@@ -20,6 +20,29 @@
     <%= form.file_field :file %>
   </div>
 
+  <!-- Accessibility Level: Admins pick options, non-admins default to 0 -->
+  <% if Current.user&.admin? %>
+    <div>
+      <%= form.label :accessibility_level, "Accessibility Level" %>
+      <%= form.select :accessibility_level, [
+        ["Public (Not Logged In)", "public_access"],
+        ["Logged In Users Only", "logged_in"],
+        ["Admin Only", "admin_only"]
+      ] %>
+    </div>
+  <% else %>
+    <%= form.hidden_field :accessibility_level, value: 0 %>
+  <% end %>
+
+  <!-- Importance Flag: Available to all users -->
+  <div>
+    <%= form.label :importance_flag, "Importance" %>
+    <%= form.select :importance_flag, [
+      ["Normal", "normal"],
+      ["Important", "important"]
+    ] %>
+  </div>
+
   <div>
     <%= form.submit %>
   </div>
